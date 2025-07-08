@@ -9,6 +9,7 @@ class ResConfigSettings(models.TransientModel):
         'res.users',
         string='Usuarios con Acceso a Proveedores',
         compute='_compute_supplier_visibility_users',
+        readonly=True,
         help='Usuarios que actualmente pueden ver información de proveedores'
     )
     
@@ -16,16 +17,17 @@ class ResConfigSettings(models.TransientModel):
     almus_supplier_count = fields.Integer(
         string='Total de Proveedores',
         compute='_compute_supplier_stats',
+        readonly=True,
         help='Número total de proveedores en el sistema'
     )
     
     almus_hidden_supplier_count = fields.Integer(
         string='Proveedores Ocultos',
         compute='_compute_supplier_stats',
+        readonly=True,
         help='Número de proveedores ocultos para usuarios sin permisos'
     )
     
-    @api.depends('almus_supplier_visibility_users')
     def _compute_supplier_visibility_users(self):
         for record in self:
             supplier_group = self.env.ref('almus_supplier_visibility.group_supplier_visibility', raise_if_not_found=False)
@@ -34,7 +36,6 @@ class ResConfigSettings(models.TransientModel):
             else:
                 record.almus_supplier_visibility_users = False
     
-    @api.depends('almus_supplier_count')
     def _compute_supplier_stats(self):
         for record in self:
             # Contar todos los proveedores sin aplicar reglas de registro
