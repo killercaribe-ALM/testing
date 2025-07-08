@@ -1,4 +1,4 @@
-__manifest__ = {
+{
     'name': 'Almus Partner Confidential Information',
     'summary': 'Gestión de información confidencial de proveedores con control de acceso',
     'description': """
