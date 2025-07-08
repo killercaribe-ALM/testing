@@ -77,11 +77,12 @@ class ResConfigSettings(models.TransientModel):
             'name': 'Usuarios con Acceso a Proveedores',
             'type': 'ir.actions.act_window',
             'res_model': 'res.users',
-            'view_mode': 'tree,form',
-            'domain': [('groups_id', 'in', supplier_group.id)],
+            'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
+            'domain': [('groups_id', 'in', [supplier_group.id])],
             'context': {
                 'create': False,
-                'search_default_internal_users': 1,
+                'edit': False,
             },
-            'target': 'new',
+            'target': 'current',
         }
