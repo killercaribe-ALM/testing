@@ -29,7 +29,7 @@
                                         <span>Total de Proveedores: </span>
                                         <field name="almus_supplier_count" class="oe_inline fw-bold"/>
                                     </div>
-                                    <div class="text-muted" attrs="{'invisible': [('almus_hidden_supplier_count', '=', 0)]}">
+                                    <div class="text-muted" invisible="almus_hidden_supplier_count == 0">
                                         <span>Proveedores Ocultos para Ti: </span>
                                         <field name="almus_hidden_supplier_count" class="oe_inline fw-bold text-danger"/>
                                     </div>

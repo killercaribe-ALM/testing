@@ -11,6 +11,7 @@
         - Permite acceso completo a usuarios del departamento de compras
         - Configuración simple mediante grupos de usuarios
         - No afecta el funcionamiento normal de compras
+        - Panel informativo en Configuración → Almus Dev
     """,
     'author': 'Almus Dev',
     'website': 'https://www.almus.dev',
