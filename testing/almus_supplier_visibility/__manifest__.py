@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__manifest__ = {
+{
     'name': 'Almus Supplier Visibility',
     'summary': 'Restringe la visibilidad de proveedores solo a usuarios del departamento de compras',
     'description': """
