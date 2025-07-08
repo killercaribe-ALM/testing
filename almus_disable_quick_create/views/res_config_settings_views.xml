@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_almus_disable_quick_create_res_config_settings" model="ir.ui.view">
+        <field name="name">almus.disable_quick_create.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="almus_base.view_almus_base_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='almus_app_settings']" position="inside">
+                <block title="Control de Creación Rápida" name="almus_disable_quick_create_block">
+                    <setting id="disable_partner_creation" 
+                             string="Contactos"
+                             help="Obliga a crear contactos solo desde el módulo de Contactos">
+                        <field name="almus_disable_partner_creation"/>
+                    </setting>
+                    <setting id="disable_product_creation" 
+                             string="Productos"
+                             help="Obliga a crear productos solo desde el módulo de Inventario">
+                        <field name="almus_disable_product_creation"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

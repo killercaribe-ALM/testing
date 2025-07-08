@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_almus_sale_pricelist_control_res_config_settings" model="ir.ui.view">
+        <field name="name">almus.sale_pricelist_control.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="almus_base.view_almus_base_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='almus_app_settings']" position="inside">
+                <block title="Control de Listas de Precios y Ventas" name="almus_sale_pricelist_control_block">
+                    <setting id="almus_sale_pricelist_control_main" 
+                             string="Activar Control de Precios"
+                             help="Activa todas las funcionalidades de control de listas de precios y precios en ventas">
+                        <field name="almus_sale_pricelist_control_enabled"/>
+                    </setting>
+                    <setting id="almus_restrict_pricelist_setting" 
+                             string="Restringir Edición de Listas"
+                             help="Solo los administradores de ventas pueden crear, editar o eliminar listas de precios"
+                             invisible="not almus_sale_pricelist_control_enabled">
+                        <field name="almus_restrict_pricelist_edit"/>
+                    </setting>
+                    <setting id="almus_hide_price_setting" 
+                             string="Ocultar Precio Unitario"
+                             help="Oculta el campo de precio unitario en las líneas de venta para usuarios no administradores"
+                             invisible="not almus_sale_pricelist_control_enabled">
+                        <field name="almus_hide_unit_price"/>
+                    </setting>
+                    <setting id="almus_pricelist_line_setting" 
+                             string="Lista de Precios por Línea"
+                             help="Permite seleccionar una lista de precios diferente para cada línea de la orden de venta"
+                             invisible="not almus_sale_pricelist_control_enabled">
+                        <field name="almus_pricelist_per_line"/>
+                    </setting>
+                    <setting id="almus_company_setting" 
+                             string="Configuración por Compañía"
+                             help="Aplicar estas configuraciones solo a la compañía actual"
+                             invisible="not almus_sale_pricelist_control_enabled">
+                        <field name="almus_apply_per_company"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

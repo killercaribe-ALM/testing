@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario de orden de venta -->
+    <record id="view_order_form_inherit_almus_pricelist" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.almus.pricelist</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar campos computados ocultos al principio de la lista -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='sequence']" position="before">
+                <field name="show_line_pricelist" column_invisible="True"/>
+                <field name="is_price_editable" column_invisible="True"/>
+            </xpath>
+            
+            <!-- Modificar la vista de líneas de orden -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <!-- Hacer el campo invisible basado en el campo computado -->
+                <attribute name="invisible">not is_price_editable</attribute>
+                <attribute name="readonly">not is_price_editable</attribute>
+            </xpath>
+            
+            <!-- Agregar campo de lista de precios por línea después del producto -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
+                <field name="line_pricelist_id" 
+                       string="Lista Precios"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       optional="show"
+                       invisible="not show_line_pricelist"
+                       domain="[('company_id', 'in', [parent.company_id, False])]"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Modificar el formulario embebido de línea de orden -->
+    <record id="view_order_form_inherit_almus_pricelist_popup" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.almus.pricelist.popup</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Modificar el formulario embebido dentro del campo order_line -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']/.." position="after">
+                <field name="show_line_pricelist" invisible="1"/>
+                <field name="is_price_editable" invisible="1"/>
+                <label for="line_pricelist_id" invisible="not show_line_pricelist"/>
+                <field name="line_pricelist_id" 
+                       invisible="not show_line_pricelist"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       domain="[('company_id', 'in', [parent.company_id, False])]"/>
+            </xpath>
+            
+            <!-- Modificar visibilidad del precio unitario en el formulario embebido -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="attributes">
+                <attribute name="invisible">not is_price_editable</attribute>
+                <attribute name="readonly">not is_price_editable</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

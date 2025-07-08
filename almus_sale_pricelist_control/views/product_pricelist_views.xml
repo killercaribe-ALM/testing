@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de lista personalizada para listas de precios con control de permisos -->
+    <record id="view_product_pricelist_list_almus" model="ir.ui.view">
+        <field name="name">product.pricelist.list.almus</field>
+        <field name="model">product.pricelist</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <list string="Listas de Precios" create="true" edit="true" delete="true">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="currency_id" groups="base.group_multi_currency"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+    
+    <!-- Vista de formulario de lista de precios -->
+    <record id="view_product_pricelist_form_inherit_almus" model="ir.ui.view">
+        <field name="name">product.pricelist.form.inherit.almus</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <!-- Agregar banner informativo para no administradores usando un campo computado -->
+            <xpath expr="//form" position="inside">
+                <field name="is_admin_user" invisible="1"/>
+            </xpath>
+            <xpath expr="//form/sheet" position="before">
+                <div class="alert alert-warning" role="alert" invisible="is_admin_user">
+                    <i class="fa fa-info-circle"/> Solo los administradores de ventas pueden modificar las listas de precios.
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
