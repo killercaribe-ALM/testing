@@ -11,94 +11,94 @@ class ResConfigSettings(models.TransientModel):
     almus_partner_confidential_enabled = fields.Boolean(
         string='Activar Información Confidencial de Contactos',
         config_parameter='almus_partner_confidential.enabled',
-        default=True,
         help='Activa la pestaña de información confidencial en los contactos'
     )
     
-    # Usuarios con acceso a información confidencial
-    almus_confidential_users = fields.Many2many(
-        'res.users',
+    # Campo computado para mostrar estadísticas
+    almus_confidential_partners_count = fields.Integer(
+        string='Contactos con Información Confidencial',
+        compute='_compute_confidential_partners_count'
+    )
+    
+    # Campo para mostrar usuarios con acceso
+    almus_confidential_users_count = fields.Integer(
         string='Usuarios con Acceso',
-        compute='_compute_confidential_users',
-        readonly=True,
-        help='Usuarios que pueden ver y editar información confidencial'
+        compute='_compute_confidential_users_count'
     )
     
-    # Estadísticas
-    almus_partners_with_confidential = fields.Integer(
-        string='Contactos con Info. Confidencial',
-        compute='_compute_confidential_stats',
-        readonly=True
-    )
-    
-    almus_total_confidential_users = fields.Integer(
-        string='Total Usuarios con Acceso',
-        compute='_compute_confidential_stats',
-        readonly=True
-    )
-    
-    @api.depends_context('uid')
-    def _compute_confidential_users(self):
-        """Obtener usuarios con acceso a información confidencial"""
+    @api.depends('almus_partner_confidential_enabled')
+    def _compute_confidential_partners_count(self):
+        """Cuenta cuántos partners tienen información confidencial"""
         for record in self:
-            confidential_group = self.env.ref(
-                'almus_partner_confidential.group_partner_confidential_user',
-                raise_if_not_found=False
-            )
-            if confidential_group:
-                record.almus_confidential_users = confidential_group.users
+            if record.almus_partner_confidential_enabled:
+                # Contar partners con al menos un campo confidencial
+                domain = ['|'] * 9 + [
+                    ('almus_confidential_name', '!=', False),
+                    ('almus_confidential_email', '!=', False),
+                    ('almus_wechat_id', '!=', False),
+                    ('almus_whatsapp_number', '!=', False),
+                    ('almus_contact_person', '!=', False),
+                    ('almus_payment_terms_notes', '!=', False),
+                    ('almus_price_conditions', '!=', False),
+                    ('almus_bank_info', '!=', False),
+                    ('almus_internal_notes', '!=', False),
+                    ('almus_credit_info', '!=', False)
+                ]
+                record.almus_confidential_partners_count = self.env['res.partner'].sudo().search_count(domain)
             else:
-                record.almus_confidential_users = False
+                record.almus_confidential_partners_count = 0
     
-    @api.depends_context('uid')
-    def _compute_confidential_stats(self):
-        """Calcular estadísticas de uso"""
+    @api.depends('almus_partner_confidential_enabled')
+    def _compute_confidential_users_count(self):
+        """Cuenta cuántos usuarios tienen acceso a información confidencial"""
         for record in self:
-            # Contar contactos con información confidencial
-            Partner = self.env['res.partner'].sudo()
-            domain = [
-                '|', '|', '|', '|', '|', '|', '|', '|', '|',
-                ('almus_confidential_name', '!=', False),
-                ('almus_confidential_email', '!=', False),
-                ('almus_wechat_id', '!=', False),
-                ('almus_whatsapp_number', '!=', False),
-                ('almus_contact_person', '!=', False),
-                ('almus_payment_terms_notes', '!=', False),
-                ('almus_price_conditions', '!=', False),
-                ('almus_bank_info', '!=', False),
-                ('almus_internal_notes', '!=', False),
-                ('almus_credit_info', '!=', False),
-            ]
-            record.almus_partners_with_confidential = Partner.search_count(domain)
-            
-            # Contar usuarios con acceso
-            confidential_group = self.env.ref(
-                'almus_partner_confidential.group_partner_confidential_user',
-                raise_if_not_found=False
-            )
-            record.almus_total_confidential_users = len(confidential_group.users) if confidential_group else 0
+            group_user = self.env.ref('almus_partner_confidential.group_partner_confidential_user', False)
+            if group_user:
+                record.almus_confidential_users_count = len(group_user.users)
+            else:
+                record.almus_confidential_users_count = 0
     
-    def action_view_confidential_users(self):
-        """Ver usuarios con acceso a información confidencial"""
-        confidential_group = self.env.ref('almus_partner_confidential.group_partner_confidential_user')
+    @api.model
+    def set_values(self):
+        """Sobrescribir para manejar la activación/desactivación"""
+        # Obtener el valor anterior
+        was_enabled = self.env['ir.config_parameter'].sudo().get_param(
+            'almus_partner_confidential.enabled', 'False'
+        ).lower() == 'true'
         
+        # Llamar al método padre
+        super().set_values()
+        
+        # Obtener el valor nuevo
+        is_enabled = self.almus_partner_confidential_enabled
+        
+        # Log del cambio
+        if was_enabled != is_enabled:
+            _logger.info(
+                'Información Confidencial de Contactos %s por el usuario %s',
+                'activada' if is_enabled else 'desactivada',
+                self.env.user.name
+            )
+            
+            # Si se está desactivando, limpiar caché para actualizar vistas
+            if not is_enabled:
+                self.env['res.partner'].invalidate_model(['almus_show_confidential_tab'])
+    
+    def action_open_confidential_users(self):
+        """Abre la vista de usuarios con acceso a información confidencial"""
+        group = self.env.ref('almus_partner_confidential.group_partner_confidential_user')
         return {
-            'name': 'Usuarios con Acceso a Información Confidencial',
             'type': 'ir.actions.act_window',
+            'name': 'Usuarios con Acceso a Información Confidencial',
             'res_model': 'res.users',
-            'view_mode': 'list,form',
-            'domain': [('groups_id', 'in', [confidential_group.id])],
-            'context': {
-                'create': False,
-                'edit': False,
-            },
-            'target': 'current',
+            'view_mode': 'tree,form',
+            'domain': [('groups_id', 'in', group.id)],
+            'context': {'create': False}
         }
     
-    def action_view_confidential_partners(self):
-        """Ver contactos con información confidencial"""
-        domain = [
-            '|', '|', '|', '|', '|', '|', '|', '|', '|',
+    def action_open_confidential_partners(self):
+        """Abre la vista de contactos con información confidencial"""
+        domain = ['|'] * 9 + [
             ('almus_confidential_name', '!=', False),
             ('almus_confidential_email', '!=', False),
             ('almus_wechat_id', '!=', False),
@@ -108,17 +108,14 @@ class ResConfigSettings(models.TransientModel):
             ('almus_price_conditions', '!=', False),
             ('almus_bank_info', '!=', False),
             ('almus_internal_notes', '!=', False),
-            ('almus_credit_info', '!=', False),
+            ('almus_credit_info', '!=', False)
         ]
         
         return {
-            'name': 'Contactos con Información Confidencial',
             'type': 'ir.actions.act_window',
+            'name': 'Contactos con Información Confidencial',
             'res_model': 'res.partner',
-            'view_mode': 'list,form',
+            'view_mode': 'tree,form',
             'domain': domain,
-            'context': {
-                'create': False,
-            },
-            'target': 'current',
+            'context': {'search_default_has_confidential': 1}
         }
