@@ -59,7 +59,13 @@ class ResPartner(models.Model):
         help='Límites de crédito, historial de pagos y otra información financiera'
     )
     
-
+    # Campo para búsquedas rápidas
+    almus_has_confidential = fields.Boolean(
+        string='Tiene información confidencial',
+        store=True,
+        index=True,
+        help='Indica si el contacto tiene información confidencial'
+    )
     
     @api.model
     def get_view(self, view_id=None, view_type='form', **options):
@@ -115,6 +121,8 @@ class ResPartner(models.Model):
         if self._has_confidential_data(vals):
             # Solo registrar en log
             _logger.info('Información confidencial creada para partner por usuario %s', self.env.user.name)
+            # Marcar que tiene información confidencial
+            vals['almus_has_confidential'] = True
         return super().create(vals)
     
     def write(self, vals):
@@ -134,7 +142,28 @@ class ResPartner(models.Model):
         if self._has_confidential_data(vals):
             # Solo registrar en log
             _logger.info('Información confidencial modificada para partner %s por usuario %s', 
-                        self.display_name, self.env.user.name)
+                        ', '.join([str(p.id) for p in self]), self.env.user.name)
+            # Marcar que tiene información confidencial
+            vals['almus_has_confidential'] = True
+            
+        # Verificar si necesitamos actualizar almus_has_confidential a False
+        if not self._has_confidential_data(vals) and 'almus_has_confidential' not in vals:
+            for partner in self:
+                # Verificar si todos los campos confidenciales están vacíos
+                has_any_data = any([
+                    partner.almus_confidential_name,
+                    partner.almus_confidential_email,
+                    partner.almus_wechat_id,
+                    partner.almus_whatsapp_number,
+                    partner.almus_contact_person,
+                    partner.almus_payment_terms_notes,
+                    partner.almus_price_conditions,
+                    partner.almus_bank_info,
+                    partner.almus_internal_notes,
+                    partner.almus_credit_info
+                ])
+                if not has_any_data:
+                    vals['almus_has_confidential'] = False
         return super().write(vals)
     
     def _has_confidential_data(self, vals):
