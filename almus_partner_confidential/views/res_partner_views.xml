@@ -58,9 +58,8 @@
                                    readonly="1"
                                    groups="almus_partner_confidential.group_partner_confidential_user,!almus_partner_confidential.group_partner_confidential_manager"/>
                         </group>
-                        <group string="Información de Auditoría">
-                            <field name="almus_confidential_last_update" readonly="1"/>
-                            <field name="almus_confidential_last_user" readonly="1"/>
+                        <group>
+                            <!-- Grupo vacío para mantener el layout -->
                         </group>
                     </group>
                     
