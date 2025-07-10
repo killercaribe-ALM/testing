@@ -59,17 +59,7 @@ class ResPartner(models.Model):
         help='Límites de crédito, historial de pagos y otra información financiera'
     )
     
-    # Tracking de última modificación de información confidencial
-    almus_confidential_last_update = fields.Datetime(
-        string='Última Actualización Confidencial',
-        readonly=True
-    )
-    
-    almus_confidential_last_user = fields.Many2one(
-        'res.users',
-        string='Último Usuario que Modificó',
-        readonly=True
-    )
+
     
     @api.model
     def get_view(self, view_id=None, view_type='form', **options):
@@ -77,6 +67,14 @@ class ResPartner(models.Model):
         res = super().get_view(view_id, view_type, **options)
         
         if view_type == 'form' and res.get('arch'):
+            # Agregar una clave de caché basada en el estado de configuración
+            cache_key = f"partner_view_{view_id}_{self._is_confidential_enabled()}"
+            
+            # Si ya procesamos esta vista con este estado, devolver directamente
+            if hasattr(self.env, '_view_cache') and cache_key in self.env._view_cache:
+                res['arch'] = self.env._view_cache[cache_key]
+                return res
+                
             # Verificar si la funcionalidad está activada
             is_enabled = self._is_confidential_enabled()
             
@@ -91,6 +89,11 @@ class ResPartner(models.Model):
                     page.set('invisible', '1')
                 
                 res['arch'] = etree.tostring(doc, encoding='unicode')
+                
+            # Guardar en caché temporal
+            if not hasattr(self.env, '_view_cache'):
+                self.env._view_cache = {}
+            self.env._view_cache[cache_key] = res['arch']
         
         return res
     
@@ -110,10 +113,8 @@ class ResPartner(models.Model):
             raise AccessError('No tiene permisos para crear información confidencial.')
             
         if self._has_confidential_data(vals):
-            vals.update({
-                'almus_confidential_last_update': fields.Datetime.now(),
-                'almus_confidential_last_user': self.env.user.id,
-            })
+            # Solo registrar en log
+            _logger.info('Información confidencial creada para partner por usuario %s', self.env.user.name)
         return super().create(vals)
     
     def write(self, vals):
@@ -131,10 +132,9 @@ class ResPartner(models.Model):
             raise AccessError('No tiene permisos para modificar información confidencial.')
             
         if self._has_confidential_data(vals):
-            vals.update({
-                'almus_confidential_last_update': fields.Datetime.now(),
-                'almus_confidential_last_user': self.env.user.id,
-            })
+            # Solo registrar en log
+            _logger.info('Información confidencial modificada para partner %s por usuario %s', 
+                        self.display_name, self.env.user.name)
         return super().write(vals)
     
     def _has_confidential_data(self, vals):

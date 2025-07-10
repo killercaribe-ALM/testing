@@ -142,6 +142,10 @@
                        string="WeChat"
                        optional="hide"
                        groups="almus_partner_confidential.group_partner_confidential_user"/>
+                <field name="almus_has_confidential" 
+                       string="Info Conf."
+                       optional="hide"
+                       groups="almus_partner_confidential.group_partner_confidential_user"/>
             </xpath>
         </field>
     </record>
@@ -156,17 +160,7 @@
                 <separator groups="almus_partner_confidential.group_partner_confidential_user"/>
                 <filter string="Con Info Confidencial" 
                         name="has_confidential"
-                        domain="['|', '|', '|', '|', '|', '|', '|', '|', '|',
-                                ('almus_confidential_name', '!=', False),
-                                ('almus_confidential_email', '!=', False),
-                                ('almus_wechat_id', '!=', False),
-                                ('almus_whatsapp_number', '!=', False),
-                                ('almus_contact_person', '!=', False),
-                                ('almus_payment_terms_notes', '!=', False),
-                                ('almus_price_conditions', '!=', False),
-                                ('almus_bank_info', '!=', False),
-                                ('almus_internal_notes', '!=', False),
-                                ('almus_credit_info', '!=', False)]"
+                        domain="[('almus_has_confidential', '=', True)]"
                         groups="almus_partner_confidential.group_partner_confidential_user"/>
             </xpath>
         </field>
