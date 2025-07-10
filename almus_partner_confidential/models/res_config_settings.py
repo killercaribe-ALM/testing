@@ -15,6 +15,32 @@ class ResConfigSettings(models.TransientModel):
     )
     
     @api.model
+    def get_values(self):
+        """Obtener valores y sincronizar el grupo técnico"""
+        res = super().get_values()
+        
+        # Verificar si la funcionalidad está activada
+        is_enabled = self.env['ir.config_parameter'].sudo().get_param(
+            'almus_partner_confidential.enabled', 'False'
+        ).lower() == 'true'
+        
+        # Sincronizar el grupo técnico
+        group_enabled = self.env.ref('almus_partner_confidential.group_partner_confidential_enabled', False)
+        if group_enabled:
+            all_users = self.env['res.users'].sudo().search([])
+            if is_enabled:
+                # Asignar el grupo a todos los usuarios si no lo tienen
+                users_without_group = all_users.filtered(lambda u: group_enabled not in u.groups_id)
+                if users_without_group:
+                    group_enabled.users = [(4, user.id) for user in users_without_group]
+            else:
+                # Remover el grupo de todos los usuarios
+                if group_enabled.users:
+                    group_enabled.users = [(5, 0, 0)]
+        
+        return res
+    
+    @api.model
     def set_values(self):
         """Sobrescribir para manejar la activación/desactivación"""
         # Obtener el valor anterior
@@ -36,5 +62,13 @@ class ResConfigSettings(models.TransientModel):
                 self.env.user.name
             )
             
-            # Limpiar caché de vistas cuando se cambia el estado
-            self.env['res.partner'].clear_caches()
+            # Manejar el grupo técnico
+            group_enabled = self.env.ref('almus_partner_confidential.group_partner_confidential_enabled', False)
+            if group_enabled:
+                all_users = self.env['res.users'].sudo().search([])
+                if is_enabled:
+                    # Asignar el grupo a todos los usuarios
+                    group_enabled.users = [(6, 0, all_users.ids)]
+                else:
+                    # Remover el grupo de todos los usuarios
+                    group_enabled.users = [(5, 0, 0)]

@@ -10,7 +10,7 @@
             <xpath expr="//page[@name='internal_notes']" position="after">
                 <page string="Información Confidencial" 
                       name="almus_confidential_info"
-                      groups="almus_partner_confidential.group_partner_confidential_user">
+                      groups="almus_partner_confidential.group_partner_confidential_user,almus_partner_confidential.group_partner_confidential_enabled">
                     
                     <group>
                         <group string="Datos de Contacto Internacional">
