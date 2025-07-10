@@ -14,7 +14,7 @@ class ResConfigSettings(models.TransientModel):
         help='Activa la pestaña de información confidencial en los contactos'
     )
     
-    # Campo computado para mostrar estadísticas
+    # Campo para mostrar estadísticas
     almus_confidential_partners_count = fields.Integer(
         string='Contactos con Información Confidencial',
         compute='_compute_confidential_partners_count'
@@ -79,10 +79,6 @@ class ResConfigSettings(models.TransientModel):
                 'activada' if is_enabled else 'desactivada',
                 self.env.user.name
             )
-            
-            # Si se está desactivando, limpiar caché para actualizar vistas
-            if not is_enabled:
-                self.env['res.partner'].invalidate_model(['almus_show_confidential_tab'])
     
     def action_open_confidential_users(self):
         """Abre la vista de usuarios con acceso a información confidencial"""

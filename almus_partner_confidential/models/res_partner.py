@@ -11,105 +11,65 @@ class ResPartner(models.Model):
     # Campos de información confidencial
     almus_confidential_name = fields.Char(
         string='Nombre Internacional',
-        help='Nombre del proveedor en su idioma original o nombre comercial internacional',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Nombre del proveedor en su idioma original o nombre comercial internacional'
     )
     
     almus_confidential_email = fields.Char(
         string='Correo Confidencial',
-        help='Correo electrónico privado para comunicaciones sensibles',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Correo electrónico privado para comunicaciones sensibles'
     )
     
     almus_wechat_id = fields.Char(
         string='WeChat ID',
-        help='Identificador de WeChat para comunicaciones',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Identificador de WeChat para comunicaciones'
     )
     
     almus_whatsapp_number = fields.Char(
         string='WhatsApp',
-        help='Número de WhatsApp para comunicaciones directas',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Número de WhatsApp para comunicaciones directas'
     )
     
     almus_contact_person = fields.Char(
         string='Persona de Contacto Clave',
-        help='Nombre de la persona de contacto principal para asuntos importantes',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Nombre de la persona de contacto principal para asuntos importantes'
     )
     
     almus_payment_terms_notes = fields.Text(
         string='Términos de Pago Especiales',
-        help='Notas sobre condiciones de pago negociadas o especiales',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Notas sobre condiciones de pago negociadas o especiales'
     )
     
     almus_price_conditions = fields.Text(
         string='Condiciones de Precios',
-        help='Información sobre descuentos, precios especiales o condiciones comerciales',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Información sobre descuentos, precios especiales o condiciones comerciales'
     )
     
     almus_bank_info = fields.Text(
         string='Información Bancaria',
-        help='Datos bancarios para transferencias internacionales',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Datos bancarios para transferencias internacionales'
     )
     
     almus_internal_notes = fields.Text(
         string='Notas Internas Confidenciales',
-        help='Notas privadas sobre el proveedor que no deben ser compartidas',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Notas privadas sobre el proveedor que no deben ser compartidas'
     )
     
     almus_credit_info = fields.Text(
         string='Información de Crédito',
-        help='Límites de crédito, historial de pagos y otra información financiera',
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        help='Límites de crédito, historial de pagos y otra información financiera'
     )
     
     # Tracking de última modificación de información confidencial
     almus_confidential_last_update = fields.Datetime(
         string='Última Actualización Confidencial',
-        readonly=True,
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        readonly=True
     )
     
     almus_confidential_last_user = fields.Many2one(
         'res.users',
         string='Último Usuario que Modificó',
-        readonly=True,
-        groups='almus_partner_confidential.group_partner_confidential_user'
+        readonly=True
     )
-    
-    # Campo computado para verificar si la funcionalidad está activa
-    almus_show_confidential_tab = fields.Boolean(
-        compute='_compute_show_confidential_tab',
-        string='Mostrar Pestaña Confidencial'
-    )
-    
-    @api.depends_context('uid')
-    def _compute_show_confidential_tab(self):
-        """Determina si mostrar la pestaña confidencial basado en:
-        1. Si la funcionalidad está activada en configuración
-        2. Si el usuario tiene permisos para ver información confidencial
-        """
-        is_enabled = self.env['ir.config_parameter'].sudo().get_param(
-            'almus_partner_confidential.enabled', 'False'
-        ).lower() == 'true'
-        
-        has_permission = self.env.user.has_group(
-            'almus_partner_confidential.group_partner_confidential_user'
-        )
-        
-        for record in self:
-            record.almus_show_confidential_tab = is_enabled and has_permission
-            
-        _logger.debug(
-            'Verificación pestaña confidencial - Activado: %s, Permisos: %s, Usuario: %s',
-            is_enabled, has_permission, self.env.user.name
-        )
     
     @api.model
     def create(self, vals):
@@ -126,9 +86,7 @@ class ResPartner(models.Model):
         ):
             raise AccessError('No tiene permisos para crear información confidencial.')
             
-        if self._has_confidential_data(vals) and self.env.user.has_group(
-            'almus_partner_confidential.group_partner_confidential_manager'
-        ):
+        if self._has_confidential_data(vals):
             vals.update({
                 'almus_confidential_last_update': fields.Datetime.now(),
                 'almus_confidential_last_user': self.env.user.id,
@@ -149,9 +107,7 @@ class ResPartner(models.Model):
         ):
             raise AccessError('No tiene permisos para modificar información confidencial.')
             
-        if self._has_confidential_data(vals) and self.env.user.has_group(
-            'almus_partner_confidential.group_partner_confidential_manager'
-        ):
+        if self._has_confidential_data(vals):
             vals.update({
                 'almus_confidential_last_update': fields.Datetime.now(),
                 'almus_confidential_last_user': self.env.user.id,

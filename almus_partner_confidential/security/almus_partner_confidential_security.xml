@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Categoría para los grupos -->
+        <record id="module_category_almus_partner_confidential" model="ir.module.category">
+            <field name="name">Información Confidencial de Contactos</field>
+            <field name="description">Gestión de acceso a información confidencial de proveedores y contactos</field>
+            <field name="sequence">100</field>
+        </record>
+        
+        <!-- Grupo: Ver Información Confidencial (Solo lectura) -->
+        <record id="group_partner_confidential_user" model="res.groups">
+            <field name="name">Ver Información Confidencial</field>
+            <field name="category_id" ref="module_category_almus_partner_confidential"/>
+            <field name="comment">Permite ver la pestaña de información confidencial en los contactos (solo lectura)</field>
+        </record>
+        
+        <!-- Grupo: Administrar Información Confidencial (Lectura y Escritura) -->
+        <record id="group_partner_confidential_manager" model="res.groups">
+            <field name="name">Administrar Información Confidencial</field>
+            <field name="category_id" ref="module_category_almus_partner_confidential"/>
+            <field name="implied_ids" eval="[(4, ref('group_partner_confidential_user'))]"/>
+            <field name="comment">Permite ver y editar la información confidencial de los contactos</field>
+        </record>
+        
+        <!-- Reglas de registro para campos confidenciales -->
+        <record id="partner_confidential_rule_user" model="ir.rule">
+            <field name="name">Acceso a campos confidenciales - Usuario</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_partner_confidential_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        
+        <record id="partner_confidential_rule_manager" model="ir.rule">
+            <field name="name">Acceso a campos confidenciales - Administrador</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('group_partner_confidential_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        
+        <!-- Regla para usuarios sin acceso (no pueden ver campos confidenciales) -->
+        <record id="partner_confidential_rule_no_access" model="ir.rule">
+            <field name="name">Sin acceso a campos confidenciales</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(6, 0, [])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

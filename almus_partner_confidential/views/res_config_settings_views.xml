@@ -71,23 +71,26 @@
                     
                     <!-- Instrucciones para administradores -->
                     <div class="o_setting_box" invisible="not almus_partner_confidential_enabled">
-                        <div class="o_setting_box_title">
-                            <strong>¿Cómo otorgar acceso?</strong>
-                        </div>
-                        <div class="text-muted">
-                            <p><strong>Importante:</strong> Los administradores del sistema NO tienen acceso automático a la información confidencial.</p>
-                            <ol class="mb-0">
-                                <li>Ir a Configuración → Usuarios y Compañías → Usuarios</li>
-                                <li>Seleccionar el usuario deseado</li>
-                                <li>En la pestaña "Permisos de Acceso"</li>
-                                <li>En la sección "Información Confidencial de Contactos"</li>
-                                <li>Marcar:
-                                    <ul>
-                                        <li><strong>"Ver Información Confidencial"</strong> - Solo lectura</li>
-                                        <li><strong>"Administrar Información Confidencial"</strong> - Lectura y escritura</li>
-                                    </ul>
-                                </li>
-                            </ol>
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <div class="o_setting_box_title">
+                                <strong>¿Cómo otorgar acceso?</strong>
+                            </div>
+                            <div class="text-muted">
+                                <p><strong>Importante:</strong> Los administradores del sistema NO tienen acceso automático a la información confidencial.</p>
+                                <ol class="mb-0">
+                                    <li>Ir a Configuración → Usuarios y Compañías → Usuarios</li>
+                                    <li>Seleccionar el usuario deseado</li>
+                                    <li>En la pestaña "Permisos de Acceso"</li>
+                                    <li>En la sección "Información Confidencial de Contactos"</li>
+                                    <li>Marcar:
+                                        <ul>
+                                            <li><strong>"Ver Información Confidencial"</strong> - Solo lectura</li>
+                                            <li><strong>"Administrar Información Confidencial"</strong> - Lectura y escritura</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
                     
