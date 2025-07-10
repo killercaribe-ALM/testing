@@ -72,6 +72,29 @@ class ResPartner(models.Model):
     )
     
     @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Modificar la vista para ocultar la pestaña cuando la funcionalidad está desactivada"""
+        res = super().get_view(view_id, view_type, **options)
+        
+        if view_type == 'form' and res.get('arch'):
+            # Verificar si la funcionalidad está activada
+            is_enabled = self._is_confidential_enabled()
+            
+            if not is_enabled:
+                # Si no está activada, modificar el XML para agregar invisible="1"
+                from lxml import etree
+                doc = etree.XML(res['arch'])
+                
+                # Buscar la pestaña de información confidencial
+                pages = doc.xpath("//page[@name='almus_confidential_info']")
+                for page in pages:
+                    page.set('invisible', '1')
+                
+                res['arch'] = etree.tostring(doc, encoding='unicode')
+        
+        return res
+    
+    @api.model
     def create(self, vals):
         """Registrar creación de información confidencial"""
         # Verificar si la funcionalidad está activa

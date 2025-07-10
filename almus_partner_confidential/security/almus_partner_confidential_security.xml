@@ -8,13 +8,6 @@
             <field name="sequence">100</field>
         </record>
         
-        <!-- Grupo técnico: funcionalidad activada -->
-        <record id="group_partner_confidential_enabled" model="res.groups">
-            <field name="name">Funcionalidad Confidencial Activada</field>
-            <field name="category_id" ref="base.module_category_hidden"/>
-            <field name="comment">Grupo técnico que indica si la funcionalidad está activada</field>
-        </record>
-        
         <!-- Grupo: Ver Información Confidencial (Solo lectura) -->
         <record id="group_partner_confidential_user" model="res.groups">
             <field name="name">Ver Información Confidencial</field>
