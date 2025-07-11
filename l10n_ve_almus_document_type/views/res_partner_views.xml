@@ -15,12 +15,6 @@
             <xpath expr="//field[@name='vat']" position="attributes">
                 <attribute name="placeholder">Número de documento fiscal</attribute>
             </xpath>
-            <xpath expr="//field[@name='vat']" position="after">
-                <field name="l10n_ve_full_rif" 
-                       readonly="1"
-                       invisible="not l10n_ve_full_rif"
-                       string="RIF Completo"/>
-            </xpath>
         </field>
     </record>
     
@@ -33,9 +27,6 @@
             <xpath expr="//field[@name='vat']" position="before">
                 <field name="l10n_ve_document_type" optional="hide"/>
             </xpath>
-            <xpath expr="//field[@name='vat']" position="after">
-                <field name="l10n_ve_full_rif" optional="hide"/>
-            </xpath>
         </field>
     </record>
     
@@ -45,7 +36,8 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_res_partner_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='supplier']" position="after">
+            <!-- Agregar filtros en la sección de filtros principal -->
+            <xpath expr="//search" position="inside">
                 <separator/>
                 <filter name="venezuelan_docs" string="Documentos Venezolanos" 
                         domain="[('l10n_ve_document_type', '!=', False)]"/>
@@ -53,10 +45,11 @@
                         domain="[('l10n_ve_document_type', 'in', ['V', 'E'])]"/>
                 <filter name="legal_entities" string="Personas Jurídicas (J/G/C)" 
                         domain="[('l10n_ve_document_type', 'in', ['J', 'G', 'C'])]"/>
-            </xpath>
-            <xpath expr="//group[last()]" position="inside">
-                <filter name="group_by_document_type" string="Tipo de Documento" 
-                        context="{'group_by': 'l10n_ve_document_type'}"/>
+                <separator/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_by_document_type" string="Tipo de Documento" 
+                            context="{'group_by': 'l10n_ve_document_type'}"/>
+                </group>
             </xpath>
         </field>
     </record>

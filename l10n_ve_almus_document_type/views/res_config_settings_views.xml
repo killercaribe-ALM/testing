@@ -17,10 +17,6 @@
                             <label for="l10n_ve_enable_document_validation"/>
                         </div>
                         <div class="mt8">
-                            <field name="l10n_ve_show_full_rif" class="oe_inline"/>
-                            <label for="l10n_ve_show_full_rif"/>
-                        </div>
-                        <div class="mt8">
                             <field name="l10n_ve_require_document_type" class="oe_inline"/>
                             <label for="l10n_ve_require_document_type"/>
                         </div>
