@@ -10,17 +10,17 @@
             <xpath expr="//field[@name='vat']" position="before">
                 <field name="l10n_ve_document_type" 
                        placeholder="Seleccionar tipo..."
-                       attrs="{'invisible': [('is_company', '=', False), ('supplier_rank', '=', 0), ('customer_rank', '=', 0)]}"
+                       invisible="is_company == False and supplier_rank == 0 and customer_rank == 0"
                        options="{'no_create': True, 'no_edit': True}"/>
             </xpath>
             <xpath expr="//field[@name='vat']" position="attributes">
                 <attribute name="placeholder">Número de documento fiscal</attribute>
-                <attribute name="attrs">{'invisible': [('is_company', '=', False), ('supplier_rank', '=', 0), ('customer_rank', '=', 0)]}</attribute>
+                <attribute name="invisible">is_company == False and supplier_rank == 0 and customer_rank == 0</attribute>
             </xpath>
             <xpath expr="//field[@name='vat']" position="after">
                 <field name="l10n_ve_full_rif" 
                        readonly="1"
-                       attrs="{'invisible': ['|', ('l10n_ve_full_rif', '=', False), ('is_company', '=', False)]}"
+                       invisible="l10n_ve_full_rif == False or is_company == False"
                        string="RIF Completo"/>
             </xpath>
         </field>
