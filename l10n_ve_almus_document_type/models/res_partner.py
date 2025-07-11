@@ -37,6 +37,32 @@ class ResPartner(models.Model):
         help='RIF completo en formato venezolano (Tipo-Número)'
     )
 
+    @api.depends('is_company')
+    def _compute_l10n_ve_show_document_fields(self):
+        """Determina si mostrar los campos de documento venezolano"""
+        # Verificar si existen los campos supplier_rank y customer_rank
+        has_purchase = 'supplier_rank' in self._fields
+        has_sale = 'customer_rank' in self._fields
+        
+        for partner in self:
+            # Por defecto, mostrar para empresas
+            show = partner.is_company
+            
+            # Si no es empresa, verificar si es cliente o proveedor
+            if not show and (has_purchase or has_sale):
+                if has_purchase and partner.supplier_rank > 0:
+                    show = True
+                elif has_sale and partner.customer_rank > 0:
+                    show = True
+            
+            partner.l10n_ve_show_document_fields = show
+
+    l10n_ve_show_document_fields = fields.Boolean(
+        string='Mostrar campos de documento venezolano',
+        compute='_compute_l10n_ve_show_document_fields',
+        help='Campo técnico para controlar la visibilidad de campos venezolanos'
+    )
+
     @api.constrains('vat', 'l10n_ve_document_type')
     def _check_ve_document_format(self):
         """Validar formato del documento venezolano"""
@@ -67,6 +93,20 @@ class ResPartner(models.Model):
                         f"El número de documento debe tener entre {min_length} y {max_length} dígitos. "
                         f"Longitud actual: {len(clean_vat)}"
                     )
+
+    @api.onchange('l10n_ve_document_type')
+    def _onchange_l10n_ve_document_type(self):
+        """Verificar si el tipo de documento es obligatorio según configuración"""
+        if self.vat and not self.l10n_ve_document_type:
+            if self.env['ir.config_parameter'].sudo().get_param(
+                'l10n_ve_almus_document_type.require_document_type', False
+            ):
+                return {
+                    'warning': {
+                        'title': 'Tipo de documento requerido',
+                        'message': 'Se requiere seleccionar un tipo de documento cuando se ingresa un número fiscal.'
+                    }
+                }
 
     @api.model_create_multi
     def create(self, vals_list):
