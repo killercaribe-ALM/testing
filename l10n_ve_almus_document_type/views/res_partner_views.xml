@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Vista de formulario de contactos - Agregar tipo de documento -->
+    <record id="view_partner_form_l10n_ve_document" model="ir.ui.view">
+        <field name="name">res.partner.form.l10n_ve_document</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="before">
+                <field name="l10n_ve_document_type" 
+                       placeholder="Seleccionar tipo..."
+                       attrs="{'invisible': [('is_company', '=', False), ('supplier_rank', '=', 0), ('customer_rank', '=', 0)]}"
+                       options="{'no_create': True, 'no_edit': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="attributes">
+                <attribute name="placeholder">Número de documento fiscal</attribute>
+                <attribute name="attrs">{'invisible': [('is_company', '=', False), ('supplier_rank', '=', 0), ('customer_rank', '=', 0)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="l10n_ve_full_rif" 
+                       readonly="1"
+                       attrs="{'invisible': ['|', ('l10n_ve_full_rif', '=', False), ('is_company', '=', False)]}"
+                       string="RIF Completo"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista de lista de contactos - Mostrar tipo de documento -->
+    <record id="view_partner_tree_l10n_ve_document" model="ir.ui.view">
+        <field name="name">res.partner.tree.l10n_ve_document</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='vat']" position="before">
+                <field name="l10n_ve_document_type" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="l10n_ve_full_rif" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista de búsqueda - Filtros por tipo de documento -->
+    <record id="view_res_partner_filter_l10n_ve_document" model="ir.ui.view">
+        <field name="name">res.partner.search.l10n_ve_document</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='supplier']" position="after">
+                <separator/>
+                <filter name="venezuelan_docs" string="Documentos Venezolanos" 
+                        domain="[('l10n_ve_document_type', '!=', False)]"/>
+                <filter name="natural_persons" string="Personas Naturales (V/E)" 
+                        domain="[('l10n_ve_document_type', 'in', ['V', 'E'])]"/>
+                <filter name="legal_entities" string="Personas Jurídicas (J/G/C)" 
+                        domain="[('l10n_ve_document_type', 'in', ['J', 'G', 'C'])]"/>
+            </xpath>
+            <xpath expr="//group[last()]" position="inside">
+                <filter name="group_by_document_type" string="Tipo de Documento" 
+                        context="{'group_by': 'l10n_ve_document_type'}"/>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

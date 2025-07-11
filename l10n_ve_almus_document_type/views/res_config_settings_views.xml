@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Configuración de Tipos de Documento Venezuela en el Panel Almus -->
+    <record id="view_almus_l10n_ve_document_type_res_config_settings" model="ir.ui.view">
+        <field name="name">almus.l10n_ve_document_type.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="almus_base.view_almus_base_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='almus_app_settings']" position="inside">
+                <setting id="almus_l10n_ve_document_type_settings" 
+                         string="Tipos de Documento Venezuela"
+                         help="Configuración para tipos de documento fiscal venezolano en contactos">
+                    <div class="content-group">
+                        <div class="mt16">
+                            <field name="l10n_ve_enable_document_validation" class="oe_inline"/>
+                            <label for="l10n_ve_enable_document_validation"/>
+                        </div>
+                        <div class="mt8">
+                            <field name="l10n_ve_show_full_rif" class="oe_inline"/>
+                            <label for="l10n_ve_show_full_rif"/>
+                        </div>
+                        <div class="mt8">
+                            <field name="l10n_ve_require_document_type" class="oe_inline"/>
+                            <label for="l10n_ve_require_document_type"/>
+                        </div>
+                    </div>
+                    <div class="mt16">
+                        <div class="text-muted">
+                            <strong>Tipos de documento disponibles:</strong><br/>
+                            • V - Venezolano (Personas naturales venezolanas)<br/>
+                            • E - Extranjero (Personas naturales extranjeras)<br/>
+                            • J - Jurídico (Empresas y personas jurídicas)<br/>
+                            • G - Gobierno (Entidades gubernamentales)<br/>
+                            • P - Pasaporte (Identificación por pasaporte)<br/>
+                            • C - Comuna/Consejo Comunal
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+    
+</odoo>

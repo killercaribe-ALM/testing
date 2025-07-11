@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_partner_l10n_ve_document_user,res.partner.l10n_ve.document.user,base.model_res_partner,base.group_user,1,1,1,0
+access_res_partner_l10n_ve_document_manager,res.partner.l10n_ve.document.manager,base.model_res_partner,base.group_system,1,1,1,1
+access_res_config_settings_l10n_ve_document,res.config.settings.l10n_ve.document,base.model_res_config_settings,base.group_system,1,1,1,0
