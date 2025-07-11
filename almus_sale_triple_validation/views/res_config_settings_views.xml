@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_almus_sale_triple_validation_res_config_settings" model="ir.ui.view">
+        <field name="name">almus.sale_triple_validation.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="almus_base.view_almus_base_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='almus_app_settings']" position="inside">
+                <block title="Triple Validación de Ventas" name="almus_sale_triple_validation_block">
+                    <setting id="almus_sale_triple_validation_settings" 
+                             string="Sistema de Triple Validación"
+                             help="Implementa un sistema de control con tres niveles de aprobación para órdenes de venta">
+                        <field name="almus_sale_triple_validation_enabled"/>
+                    </setting>
+                    
+                    <setting id="almus_sale_validation_min_amount_setting"
+                             string="Monto Mínimo"
+                             help="Las órdenes con monto inferior no requieren validación"
+                             invisible="not almus_sale_triple_validation_enabled">
+                        <div class="content-group">
+                            <div class="row">
+                                <label for="almus_sale_validation_min_amount" class="col-3"/>
+                                <field name="almus_sale_validation_min_amount" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </setting>
+                    
+                    <setting id="almus_sale_allow_skip_validation_setting"
+                             string="Permitir Saltar Validaciones"
+                             help="Los administradores pueden aprobar órdenes sin pasar por todas las validaciones"
+                             invisible="not almus_sale_triple_validation_enabled">
+                        <field name="almus_sale_allow_skip_validation"/>
+                    </setting>
+                    
+                    <setting id="almus_sale_validation_notifications_setting"
+                             string="Notificaciones Automáticas"
+                             help="Envía alertas a los validadores cuando una orden requiere su aprobación"
+                             invisible="not almus_sale_triple_validation_enabled">
+                        <field name="almus_sale_validation_notifications"/>
+                    </setting>
+                    
+                    <setting id="almus_sale_validation_timeout_setting"
+                             string="Tiempo de Respuesta"
+                             help="Tiempo máximo para validar antes de escalar"
+                             invisible="not almus_sale_triple_validation_enabled">
+                        <div class="content-group">
+                            <div class="row">
+                                <label for="almus_sale_validation_timeout" class="col-3"/>
+                                <field name="almus_sale_validation_timeout" class="oe_inline"/>
+                                <span> horas</span>
+                            </div>
+                        </div>
+                    </setting>
+                    
+                    <!-- Instrucciones -->
+                    <div class="o_setting_box" invisible="not almus_sale_triple_validation_enabled">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <div class="o_setting_box_title">
+                                <strong>¿Cómo configurar los validadores?</strong>
+                            </div>
+                            <div class="text-muted">
+                                <p>Asigne los siguientes grupos a los usuarios correspondientes:</p>
+                                <ul class="mb-0">
+                                    <li><strong>Validador - Vendedor</strong>: Para vendedores que validan sus propias órdenes</li>
+                                    <li><strong>Validador - Analista de Ventas</strong>: Para supervisores que evalúan rentabilidad</li>
+                                    <li><strong>Validador - Cobranzas</strong>: Para personal financiero que evalúa riesgo crediticio</li>
+                                    <li><strong>Administrador de Validaciones</strong>: Acceso completo y puede saltar validaciones</li>
+                                </ul>
+                                <p class="mt-2">Las validaciones se realizan en orden secuencial. Una orden rechazada puede regresar a estados anteriores.</p>
+                            </div>
+                        </div>
+                    </div>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

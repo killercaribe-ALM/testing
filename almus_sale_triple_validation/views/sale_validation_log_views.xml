@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de lista para sale.validation.log -->
+    <record id="view_sale_validation_log_tree" model="ir.ui.view">
+        <field name="name">sale.validation.log.tree</field>
+        <field name="model">sale.validation.log</field>
+        <field name="arch" type="xml">
+            <tree create="false" edit="false" delete="false">
+                <field name="validation_date"/>
+                <field name="sale_order_id"/>
+                <field name="validation_type"/>
+                <field name="action" 
+                       decoration-success="action == 'approve'" 
+                       decoration-danger="action == 'reject'"
+                       decoration-warning="action == 'request_changes'"/>
+                <field name="user_id"/>
+                <field name="order_amount" widget="monetary"/>
+                <field name="order_state"/>
+                <field name="comments"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vista de formulario para sale.validation.log -->
+    <record id="view_sale_validation_log_form" model="ir.ui.view">
+        <field name="name">sale.validation.log.form</field>
+        <field name="model">sale.validation.log</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="sale_order_id" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información de Validación">
+                            <field name="validation_type" readonly="1"/>
+                            <field name="action" readonly="1"/>
+                            <field name="validation_date" readonly="1"/>
+                            <field name="user_id" readonly="1"/>
+                        </group>
+                        <group string="Estado de la Orden">
+                            <field name="order_state" readonly="1"/>
+                            <field name="order_amount" readonly="1" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group string="Comentarios">
+                        <field name="comments" readonly="1" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Vista de búsqueda para sale.validation.log -->
+    <record id="view_sale_validation_log_search" model="ir.ui.view">
+        <field name="name">sale.validation.log.search</field>
+        <field name="model">sale.validation.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sale_order_id"/>
+                <field name="user_id"/>
+                <field name="comments"/>
+                
+                <filter string="Aprobadas" 
+                        name="approved"
+                        domain="[('action', '=', 'approve')]"/>
+                <filter string="Rechazadas" 
+                        name="rejected"
+                        domain="[('action', '=', 'reject')]"/>
+                <filter string="Cambios Solicitados" 
+                        name="changes_requested"
+                        domain="[('action', '=', 'request_changes')]"/>
+                
+                <separator/>
+                
+                <filter string="Validación Vendedor" 
+                        name="seller_validation"
+                        domain="[('validation_type', '=', 'seller')]"/>
+                <filter string="Validación Analista" 
+                        name="analyst_validation"
+                        domain="[('validation_type', '=', 'analyst')]"/>
+                <filter string="Validación Cobranzas" 
+                        name="collection_validation"
+                        domain="[('validation_type', '=', 'collection')]"/>
+                
+                <separator/>
+                
+                <filter string="Hoy" 
+                        name="today"
+                        domain="[('validation_date', '>=', datetime.datetime.now().replace(hour=0, minute=0, second=0)),
+                                ('validation_date', '&lt;=', datetime.datetime.now().replace(hour=23, minute=59, second=59))]"/>
+                <filter string="Esta Semana" 
+                        name="this_week"
+                        domain="[('validation_date', '>=', (datetime.datetime.now() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                
+                <group expand="0" string="Agrupar Por">
+                    <filter name="group_by_order" string="Orden de Venta" context="{'group_by': 'sale_order_id'}"/>
+                    <filter name="group_by_type" string="Tipo de Validación" context="{'group_by': 'validation_type'}"/>
+                    <filter name="group_by_action" string="Acción" context="{'group_by': 'action'}"/>
+                    <filter name="group_by_user" string="Validador" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_date" string="Fecha" context="{'group_by': 'validation_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- Acción para el menú -->
+    <record id="action_sale_validation_log" model="ir.actions.act_window">
+        <field name="name">Historial de Validaciones</field>
+        <field name="res_model">sale.validation.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_sale_validation_log_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No hay registros de validación
+            </p>
+            <p>
+                Aquí se mostrarán todas las validaciones realizadas en las órdenes de venta.
+            </p>
+        </field>
+    </record>
+    
+    <!-- Menú -->
+    <menuitem id="menu_sale_validation_log" 
+              name="Historial de Validaciones"
+              parent="sale.sale_order_menu"
+              action="action_sale_validation_log"
+              sequence="20"
+              groups="almus_sale_triple_validation.group_sale_validator_seller,almus_sale_triple_validation.group_sale_validator_analyst,almus_sale_triple_validation.group_sale_validator_collection"/>
+</odoo>
