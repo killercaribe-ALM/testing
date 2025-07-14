@@ -22,8 +22,8 @@
     "auto_install": False,
     "application": True,
     "data": [
-    "views/sale_views.xml",                 # contiene product_catalog_search_view
-    "views/product_views.xml",              # contiene action_product_catalog_sale_order
+    "views/product_views.xml",
+    "views/sale_views.xml",                 # contiene product_catalog_search_view              # contiene action_product_catalog_sale_order
     "views/res_config_settings_views.xml",
     "views/menu_views.xml",
     ],
