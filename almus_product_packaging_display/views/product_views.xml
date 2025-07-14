@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Kanban del Catálogo de Productos en Ventas -->
+    <record id="view_almus_product_product_catalog_kanban" model="ir.ui.view">
+        <field name="name">almus.product.product.catalog.kanban</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="sale.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            <!-- Agregar el campo al kanban -->
+            <xpath expr="//kanban" position="inside">
+                <field name="packaging_qty_display"/>
+            </xpath>
+            
+            <!-- Mostrar la cantidad por empaque debajo del nombre del producto -->
+            <xpath expr="//div[hasclass('o_kanban_record_title')]" position="after">
+                <div t-if="record.packaging_qty_display.raw_value" class="text-muted small">
+                    <i class="fa fa-cube me-1"/>
+                    <span>Cantidad por empaque: <t t-esc="record.packaging_qty_display.value"/></span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista Lista del Catálogo de Productos -->
+    <record id="view_almus_product_product_catalog_tree" model="ir.ui.view">
+        <field name="name">almus.product.product.catalog.tree</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <!-- Agregar columna de cantidad por empaque después del precio -->
+            <xpath expr="//field[@name='lst_price']" position="after">
+                <field name="packaging_qty_display" 
+                       string="Cant. por Empaque"
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista Formulario del Producto (para referencia) -->
+    <record id="view_almus_product_product_form" model="ir.ui.view">
+        <field name="name">almus.product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Agregar información de empaque en la pestaña de ventas -->
+            <xpath expr="//page[@name='sales']//group[@name='sale']" position="inside">
+                <field name="packaging_qty_display" 
+                       string="Visualización en Catálogo"
+                       readonly="1"
+                       help="Así se mostrará la cantidad por empaque en el catálogo de ventas"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
