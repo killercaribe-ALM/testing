@@ -1,55 +1,102 @@
-from odoo import models, fields, api
+from odoo import models, api
+from odoo.tools import str2bool
 import logging
 
 _logger = logging.getLogger(__name__)
 
 
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
     
-    packaging_qty_display = fields.Char(
-        string='Cantidad por Empaque',
-        compute='_compute_packaging_qty_display',
-        store=False,
-        help='Muestra la cantidad de productos en el empaque predeterminado'
-    )
-    
-    @api.depends('packaging_ids', 'packaging_ids.qty', 'packaging_ids.sales')
-    def _compute_packaging_qty_display(self):
-        """Calcula la cantidad por empaque para mostrar en el catálogo"""
-        # Obtener configuración
-        IrConfigParam = self.env['ir.config_parameter'].sudo()
-        show_packaging = IrConfigParam.get_param(
+    def get_packaging_display_info(self):
+        """
+        Método para obtener información de empaque sin usar campos computados.
+        Optimizado para uso en vistas.
+        """
+        # Obtener configuración una sola vez
+        IrConfigParam = self.env['ir.config_parameter']
+        show_packaging = str2bool(IrConfigParam.get_param(
             'almus_product_packaging_display.show_packaging_qty', 'True'
-        ) == 'True'
+        ))
         
         if not show_packaging:
-            self.packaging_qty_display = False
-            return
+            return False
             
         display_format = IrConfigParam.get_param(
             'almus_product_packaging_display.display_format', 'units'
         )
         
-        for product in self:
-            # Buscar el empaque predeterminado para ventas
+        # Buscar empaque predeterminado para ventas
+        packaging = self.packaging_ids.filtered(
+            lambda p: p.sales and p.qty > 0
+        )
+        
+        if not packaging:
+            return False
+            
+        # Tomar el empaque con menor cantidad (más común)
+        primary_packaging = packaging.sorted('qty')[0]
+        qty = primary_packaging.qty
+        
+        # Formatear según configuración  
+        if display_format == 'units':
+            return f"{int(qty) if qty == int(qty) else qty} unidades"
+        elif display_format == 'pack':
+            return f"Empaque: {int(qty) if qty == int(qty) else qty}"
+        else:  # custom
+            return f"Cantidad por empaque: {int(qty) if qty == int(qty) else qty}"
+    
+    @api.model
+    def get_packaging_info_for_products(self, product_ids):
+        """
+        Método batch para obtener información de empaque de múltiples productos.
+        Útil para vistas que muestran muchos productos.
+        """
+        if not product_ids:
+            return {}
+            
+        # Verificar configuración
+        IrConfigParam = self.env['ir.config_parameter']
+        show_packaging = str2bool(IrConfigParam.get_param(
+            'almus_product_packaging_display.show_packaging_qty', 'True'
+        ))
+        
+        if not show_packaging:
+            return {}
+            
+        display_format = IrConfigParam.get_param(
+            'almus_product_packaging_display.display_format', 'units'
+        )
+        
+        result = {}
+        products = self.browse(product_ids)
+        
+        for product in products:
             packaging = product.packaging_ids.filtered(
                 lambda p: p.sales and p.qty > 0
-            ).sorted('qty')
+            )
             
             if packaging:
-                # Tomar el primer empaque disponible para ventas
-                qty = int(packaging[0].qty) if packaging[0].qty == int(packaging[0].qty) else packaging[0].qty
+                primary_packaging = packaging.sorted('qty')[0]
+                qty = primary_packaging.qty
                 
-                # Aplicar formato según configuración
                 if display_format == 'units':
-                    product.packaging_qty_display = f"{qty} unidades"
+                    result[product.id] = f"{int(qty) if qty == int(qty) else qty} unidades"
                 elif display_format == 'pack':
-                    product.packaging_qty_display = f"Empaque: {qty}"
+                    result[product.id] = f"Empaque: {int(qty) if qty == int(qty) else qty}"
                 else:  # custom
-                    product.packaging_qty_display = f"Cantidad por empaque: {qty}"
+                    result[product.id] = f"Cantidad por empaque: {int(qty) if qty == int(qty) else qty}"
             else:
-                product.packaging_qty_display = False
+                result[product.id] = False
                 
-            _logger.debug('Cantidad por empaque calculada para %s: %s', 
-                         product.display_name, product.packaging_qty_display)
+        return result
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+    
+    def get_packaging_display_info(self):
+        """
+        Método delegado al template para mantener consistencia.
+        """
+        return self.product_tmpl_id.get_packaging_display_info()

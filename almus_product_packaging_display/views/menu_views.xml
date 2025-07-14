@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menú para acceso directo al catálogo (opcional para testing) -->
-    <menuitem id="menu_product_catalog_test"
-              name="Catálogo con Empaques"
+    <!-- Menú solo para testing - NO se instala en producción -->
+    <menuitem id="menu_product_catalog_demo"
+              name="🧪 Catálogo con Empaques (Demo)"
               parent="sale.product_menu_catalog"
               action="action_product_catalog_sale_order"
-              sequence="99"/>
+              sequence="99"
+              groups="base.group_no_one"/>
+              
+    <!-- Nota: Este menú solo aparece para usuarios del grupo "Características Técnicas" -->
 </odoo>
