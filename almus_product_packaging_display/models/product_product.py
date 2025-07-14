@@ -18,7 +18,8 @@ class ProductProduct(models.Model):
     def _compute_packaging_qty_display(self):
         """Calcula la cantidad por empaque para mostrar en el catálogo"""
         # Obtener configuración
-        show_packaging = self.env['ir.config_parameter'].sudo().get_param(
+        IrConfigParam = self.env['ir.config_parameter'].sudo()
+        show_packaging = IrConfigParam.get_param(
             'almus_product_packaging_display.show_packaging_qty', 'True'
         ) == 'True'
         
@@ -26,7 +27,7 @@ class ProductProduct(models.Model):
             self.packaging_qty_display = False
             return
             
-        display_format = self.env['ir.config_parameter'].sudo().get_param(
+        display_format = IrConfigParam.get_param(
             'almus_product_packaging_display.display_format', 'units'
         )
         
