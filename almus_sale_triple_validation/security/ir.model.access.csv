@@ -1,9 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_sale_validation_log_user,sale.validation.log.user,model_sale_validation_log,base.group_user,1,0,0,0
-access_sale_validation_log_seller,sale.validation.log.seller,model_sale_validation_log,group_sale_validator_seller,1,1,1,0
-access_sale_validation_log_analyst,sale.validation.log.analyst,model_sale_validation_log,group_sale_validator_analyst,1,1,1,0
-access_sale_validation_log_collection,sale.validation.log.collection,model_sale_validation_log,group_sale_validator_collection,1,1,1,0
-access_sale_validation_log_manager,sale.validation.log.manager,model_sale_validation_log,group_validation_manager,1,1,1,1
-access_sale_validation_reject_wizard_seller,sale.validation.reject.wizard.seller,model_sale_validation_reject_wizard,group_sale_validator_seller,1,1,1,0
-access_sale_validation_reject_wizard_analyst,sale.validation.reject.wizard.analyst,model_sale_validation_reject_wizard,group_sale_validator_analyst,1,1,1,0
-access_sale_validation_reject_wizard_collection,sale.validation.reject.wizard.collection,model_sale_validation_reject_wizard,group_sale_validator_collection,1,1,1,0
