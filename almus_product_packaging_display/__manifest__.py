@@ -23,9 +23,9 @@
     "application": True,
     "data": [
         "security/ir.model.access.csv",
-        "views/sale_views.xml",
+        "views/product_views.xml",             # ← Primero se carga la acción
+        "views/sale_views.xml",                # ← Luego se carga el botón que la usa
         "views/res_config_settings_views.xml",
         "views/menu_views.xml",
-        "views/product_views.xml",
     ],
 }
