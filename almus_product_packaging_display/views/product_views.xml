@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Vista Kanban del Producto - Heredar de la vista base de producto -->
-    <record id="view_almus_product_product_kanban" model="ir.ui.view">
-        <field name="name">almus.product.product.kanban</field>
+    <!-- Vista Kanban Simple para Productos con Empaque -->
+    <record id="product_packaging_kanban_view" model="ir.ui.view">
+        <field name="name">almus.product.packaging.kanban</field>
         <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_kanban_view"/>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
-            <!-- Agregar el campo al kanban -->
-            <xpath expr="//kanban" position="inside">
+            <kanban class="o_kanban_product_catalog">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="lst_price"/>
                 <field name="packaging_qty_display"/>
-            </xpath>
-            
-            <!-- Mostrar la cantidad por empaque en el contenido del kanban -->
-            <xpath expr="//templates" position="inside">
-                <t t-extend="kanban-box">
-                    <t t-jquery="div.oe_kanban_details" t-operation="append">
-                        <div t-if="record.packaging_qty_display.raw_value" class="text-muted">
-                            <i class="fa fa-cube"/> <field name="packaging_qty_display"/>
+                <field name="currency_id"/>
+                <field name="image_128"/>
+                <field name="default_code"/>
+                <field name="type"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_image me-3">
+                                <img t-att-src="kanban_image('product.product', 'image_128', record.id.raw_value)" 
+                                     alt="Product" 
+                                     class="o_image_64_contain"/>
+                            </div>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title">
+                                    <field name="name"/>
+                                </strong>
+                                <div t-if="record.default_code.value" class="text-muted small">
+                                    [<field name="default_code"/>]
+                                </div>
+                                <div t-if="record.packaging_qty_display.raw_value" class="text-primary small">
+                                    <i class="fa fa-cube"/> <field name="packaging_qty_display"/>
+                                </div>
+                                <div class="o_kanban_record_subtitle mt-1">
+                                    <field name="lst_price" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                            </div>
                         </div>
                     </t>
-                </t>
-            </xpath>
+                </templates>
+            </kanban>
         </field>
     </record>
     
@@ -57,7 +77,8 @@
                                     [<field name="default_code"/>]
                                 </div>
                                 <div t-if="record.packaging_qty_display.raw_value" class="text-muted">
-                                    <i class="fa fa-cube"/> <field name="packaging_qty_display"/>
+                                    <i class="fa fa-cube me-1"/>
+                                    <span t-esc="record.packaging_qty_display.value"/>
                                 </div>
                                 <div class="o_kanban_record_subtitle">
                                     <field name="lst_price" widget="monetary" options="{'currency_field': 'currency_id'}"/>
@@ -106,10 +127,22 @@
         <field name="name">Catálogo de Productos</field>
         <field name="res_model">product.product</field>
         <field name="view_mode">kanban,tree,form</field>
-        <field name="view_id" ref="view_almus_sale_order_line_product_kanban"/>
-        <field name="search_view_id" ref="product.product_search_form_view"/>
+        <field name="search_view_id" ref="product_catalog_search_view"/>
         <field name="domain">[('sale_ok', '=', True)]</field>
-        <field name="context">{'search_default_filter_to_sell': 1}</field>
+        <field name="context">{
+            'search_default_filter_to_sell': 1,
+            'create': False,
+            'edit': False,
+            'delete': False
+        }</field>
         <field name="target">new</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No se encontraron productos
+            </p>
+            <p>
+                Verifique que los productos estén marcados como "Puede ser vendido"
+            </p>
+        </field>
     </record>
 </odoo>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú para acceso directo al catálogo (opcional para testing) -->
+    <menuitem id="menu_product_catalog_test"
+              name="Catálogo con Empaques"
+              parent="sale.product_menu_catalog"
+              action="action_product_catalog_sale_order"
+              sequence="99"/>
+</odoo>

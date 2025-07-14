@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extender la vista de líneas de orden de venta para agregar botón de catálogo -->
+    <record id="view_order_form_inherit_sale_catalog" model="ir.ui.view">
+        <field name="name">almus.sale.order.form.catalog</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar botón de catálogo en las líneas de orden -->
+            <xpath expr="//field[@name='order_line']/tree" position="inside">
+                <button name="%(action_product_catalog_sale_order)d" 
+                        string="Catálogo" 
+                        type="action" 
+                        class="btn-link"
+                        context="{'default_sale_ok': True}"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista de búsqueda mejorada para el catálogo -->
+    <record id="product_catalog_search_view" model="ir.ui.view">
+        <field name="name">almus.product.catalog.search</field>
+        <field name="model">product.product</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Producto" filter_domain="['|', '|', ('name', 'ilike', self), ('default_code', 'ilike', self), ('barcode', 'ilike', self)]"/>
+                <field name="categ_id" string="Categoría"/>
+                <separator/>
+                <filter string="Servicios" name="services" domain="[('type', '=', 'service')]"/>
+                <filter string="Productos Almacenables" name="consumable" domain="[('type', '=', 'product')]"/>
+                <separator/>
+                <filter string="Con Empaque" name="with_packaging" domain="[('packaging_ids', '!=', False)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Categoría" name="categ_id" context="{'group_by': 'categ_id'}"/>
+                    <filter string="Tipo" name="type" context="{'group_by': 'type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>
