@@ -22,10 +22,9 @@
     "auto_install": False,
     "application": True,
     "data": [
-        "security/ir.model.access.csv",
-        "views/product_views.xml",             # ← Primero se carga la acción
-        "views/sale_views.xml",                # ← Luego se carga el botón que la usa
-        "views/res_config_settings_views.xml",
-        "views/menu_views.xml",
+    "views/sale_views.xml",                 # contiene product_catalog_search_view
+    "views/product_views.xml",              # contiene action_product_catalog_sale_order
+    "views/res_config_settings_views.xml",
+    "views/menu_views.xml",
     ],
 }
