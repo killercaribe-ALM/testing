@@ -8,8 +8,9 @@
         <field name="arch" type="xml">
             <!-- Agregar el campo después del div de precio -->
             <xpath expr="//div[@name='o_kanban_price']" position="after">
-                <div t-if="record.packaging_qty.raw_value > 1" 
-                     class="text-muted small">
+                <div t-if="record.packaging_qty.raw_value and record.packaging_qty.raw_value > 1" 
+                     class="text-muted small"
+                     name="packaging_qty_info">
                     <i class="fa fa-cube me-1"/>
                     <span>Empaque: </span>
                     <field name="packaging_qty" class="fw-bold"/> 
