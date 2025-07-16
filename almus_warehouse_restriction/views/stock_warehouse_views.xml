@@ -53,31 +53,4 @@
             </xpath>
         </field>
     </record>
-
-    <!-- Vista de búsqueda con filtros adicionales -->
-    <record id="view_almus_warehouse_filter" model="ir.ui.view">
-        <field name="name">almus.warehouse_restriction.stock.warehouse.search</field>
-        <field name="model">stock.warehouse</field>
-        <field name="inherit_id" ref="stock.view_warehouse_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <separator/>
-                <filter string="Mis Almacenes" 
-                        name="almus_my_warehouses"
-                        domain="[('almus_user_ids', 'in', uid)]"
-                        groups="almus_warehouse_restriction.group_warehouse_restriction_user"/>
-                <filter string="Con Restricción de Ubicaciones" 
-                        name="almus_with_location_restriction"
-                        domain="[('almus_restrict_locations', '=', True)]"
-                        groups="almus_warehouse_restriction.group_warehouse_restriction_user"/>
-                <separator/>
-                <group expand="0" string="Agrupar por">
-                    <filter name="group_by_almus_restrict_locations" 
-                            string="Restricción de Ubicaciones"
-                            context="{'group_by': 'almus_restrict_locations'}"
-                            groups="almus_warehouse_restriction.group_warehouse_restriction_user"/>
-                </group>
-            </xpath>
-        </field>
-    </record>
 </odoo>
