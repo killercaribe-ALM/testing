@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario de usuario con pestaña de restricciones -->
+    <record id="view_almus_users_form" model="ir.ui.view">
+        <field name="name">almus.warehouse_restriction.res.users.form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='access_rights']" position="after">
+                <page name="almus_warehouse_restrictions" 
+                      string="Restricciones de Almacén"
+                      invisible="not almus_has_warehouse_restriction"
+                      groups="almus_warehouse_restriction.group_warehouse_restriction_user">
+                    <group>
+                        <group string="Almacenes Permitidos">
+                            <field name="almus_allowed_warehouse_ids" 
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Restricción de Ubicaciones">
+                            <field name="almus_restrict_locations"/>
+                            <field name="almus_restricted_location_ids" 
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   invisible="not almus_restrict_locations"
+                                   domain="[('usage', 'in', ['internal', 'transit']), 
+                                           ('warehouse_id', 'in', almus_allowed_warehouse_ids)]"
+                                   context="{'tree_view_ref': 'stock.view_location_tree2'}"/>
+                        </group>
+                    </group>
+                    <group invisible="not almus_restrict_locations">
+                        <div class="alert alert-info" role="alert">
+                            <i class="fa fa-info-circle"/> 
+                            Las ubicaciones seleccionadas serán <b>restringidas</b> para este usuario. 
+                            El usuario podrá acceder a todas las demás ubicaciones de sus almacenes permitidos.
+                        </div>
+                    </group>
+                    <field name="almus_has_warehouse_restriction" invisible="1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista simplificada para usuarios (My Profile) -->
+    <record id="view_almus_users_simple_form" model="ir.ui.view">
+        <field name="name">almus.warehouse_restriction.res.users.simple.form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_simple_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='preferences']" position="after">
+                <group name="almus_warehouse_info" 
+                       string="Información de Almacenes"
+                       invisible="not almus_has_warehouse_restriction"
+                       groups="almus_warehouse_restriction.group_warehouse_restriction_user">
+                    <field name="almus_allowed_warehouse_ids" 
+                           widget="many2many_tags" 
+                           readonly="1"/>
+                    <field name="almus_restrict_locations" 
+                           invisible="1"/>
+                    <field name="almus_restricted_location_ids" 
+                           widget="many2many_tags"
+                           invisible="not almus_restrict_locations"
+                           domain="[('usage', 'in', ['internal', 'transit']), 
+                                   ('warehouse_id', 'in', almus_allowed_warehouse_ids)]"
+                           options="{'no_create': True}"/>
+                    <field name="almus_has_warehouse_restriction" 
+                           invisible="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de lista de usuarios con columnas de almacén -->
+    <record id="view_almus_users_tree" model="ir.ui.view">
+        <field name="name">almus.warehouse_restriction.res.users.tree</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="almus_allowed_warehouse_ids" 
+                       widget="many2many_tags"
+                       groups="almus_warehouse_restriction.group_warehouse_restriction_user"
+                       optional="hide"/>
+                <field name="almus_has_warehouse_restriction"
+                       string="Restricción Activa"
+                       groups="almus_warehouse_restriction.group_warehouse_restriction_user"
+                       optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de búsqueda con filtros de almacén -->
+    <record id="view_almus_users_search" model="ir.ui.view">
+        <field name="name">almus.warehouse_restriction.res.users.search</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="after">
+                <separator/>
+                <filter string="Con Restricción de Almacén" 
+                        name="almus_with_warehouse_restriction"
+                        domain="[('almus_has_warehouse_restriction', '=', True)]"
+                        groups="almus_warehouse_restriction.group_warehouse_restriction_user"/>
+                <filter string="Con Restricción de Ubicaciones" 
+                        name="almus_with_location_restriction"
+                        domain="[('almus_restrict_locations', '=', True)]"
+                        groups="almus_warehouse_restriction.group_warehouse_restriction_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Regla: Los usuarios solo ven tipos de operación de sus almacenes permitidos -->
+    <record id="almus_operation_type_rule_users" model="ir.rule">
+        <field name="name">Almus: Tipos de Operación - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_picking_type"/>
+        <field name="domain_force">
+            ['|',
+             ('warehouse_id', '=', False),
+             ('warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven ubicaciones no restringidas -->
+    <record id="almus_stock_location_rule_users" model="ir.rule">
+        <field name="name">Almus: Ubicaciones - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_location"/>
+        <field name="domain_force">
+            ['|',
+             ('id', 'not in', user.almus_restricted_location_ids.ids),
+             ('warehouse_id', '=', False)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven almacenes permitidos -->
+    <record id="almus_stock_warehouse_rule_users" model="ir.rule">
+        <field name="name">Almus: Almacenes - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_warehouse"/>
+        <field name="domain_force">
+            [('almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven transferencias de almacenes permitidos -->
+    <record id="almus_stock_picking_rule_users" model="ir.rule">
+        <field name="name">Almus: Transferencias - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="domain_force">
+            ['|',
+             ('picking_type_id.warehouse_id', '=', False),
+             ('picking_type_id.warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven movimientos de stock de almacenes permitidos -->
+    <record id="almus_stock_move_rule_users" model="ir.rule">
+        <field name="name">Almus: Movimientos Stock - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_move"/>
+        <field name="domain_force">
+            ['|', '|', '|',
+             ('location_id.warehouse_id', '=', False),
+             ('location_id.warehouse_id.almus_user_ids', 'in', user.id),
+             ('location_dest_id.warehouse_id', '=', False),
+             ('location_dest_id.warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven líneas de movimiento de almacenes permitidos -->
+    <record id="almus_stock_move_line_rule_users" model="ir.rule">
+        <field name="name">Almus: Líneas Movimiento - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_move_line"/>
+        <field name="domain_force">
+            ['|', '|', '|',
+             ('location_id.warehouse_id', '=', False),
+             ('location_id.warehouse_id.almus_user_ids', 'in', user.id),
+             ('location_dest_id.warehouse_id', '=', False),
+             ('location_dest_id.warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven paquetes de almacenes permitidos -->
+    <record id="almus_stock_quant_package_rule_users" model="ir.rule">
+        <field name="name">Almus: Paquetes - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_quant_package"/>
+        <field name="domain_force">
+            ['|',
+             ('location_id.warehouse_id', '=', False),
+             ('location_id.warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Regla: Los usuarios solo ven quants de almacenes permitidos -->
+    <record id="almus_stock_quant_rule_users" model="ir.rule">
+        <field name="name">Almus: Quants - Restricción por Usuario</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="domain_force">
+            ['|',
+             ('location_id.warehouse_id', '=', False),
+             ('location_id.warehouse_id.almus_user_ids', 'in', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('almus_warehouse_restriction.group_warehouse_restriction_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

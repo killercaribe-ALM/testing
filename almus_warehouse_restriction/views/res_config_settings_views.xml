@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de configuración integrada con Almus Base -->
+    <record id="view_almus_warehouse_restriction_res_config_settings" model="ir.ui.view">
+        <field name="name">almus.warehouse_restriction.res.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="almus_base.view_almus_base_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='almus_app_settings']" position="inside">
+                <setting id="almus_warehouse_restriction_settings" 
+                         string="Restricción de Almacenes"
+                         help="Restringe el acceso a almacenes y ubicaciones por usuario">
+                    <div class="content-group">
+                        <div class="mt8">
+                            <field name="almus_warehouse_restriction_enabled" class="oe_inline"/>
+                            <label for="almus_warehouse_restriction_enabled"/>
+                            <div class="text-muted">
+                                Activa la restricción de almacenes para usuarios específicos
+                            </div>
+                        </div>
+                        <div class="mt8" invisible="not almus_warehouse_restriction_enabled">
+                            <field name="almus_warehouse_restriction_group" class="oe_inline"/>
+                            <label for="almus_warehouse_restriction_group"/>
+                            <div class="text-muted">
+                                Activa el grupo de seguridad para aplicar las restricciones
+                            </div>
+                        </div>
+                        <div class="mt16" invisible="not almus_warehouse_restriction_enabled">
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-info-circle"/> 
+                                Configura los usuarios permitidos desde cada almacén en 
+                                <b>Inventario → Configuración → Almacenes</b>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

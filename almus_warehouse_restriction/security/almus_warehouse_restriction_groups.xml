@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Grupo de usuarios con restricción de almacén -->
+    <record id="group_warehouse_restriction_user" model="res.groups">
+        <field name="name">Restricción de Almacén Almus</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+        <field name="comment">Usuarios con restricciones de acceso a almacenes específicos</field>
+    </record>
+</odoo>
