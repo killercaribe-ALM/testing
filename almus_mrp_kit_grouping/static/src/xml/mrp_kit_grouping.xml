@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    
+    <!-- Template para mostrar información adicional del kit -->
+    <t t-name="almus_mrp_kit_grouping.KitInfo" t-inherit="web.ListRenderer.RecordRow" t-inherit-mode="extension">
+        <xpath expr="//tr" position="attributes">
+            <attribute name="t-att-data-almus-kit-level">record.data.almus_bom_level</attribute>
+            <attribute name="t-att-data-almus-parent-kit">record.data.almus_parent_kit_id ? record.data.almus_parent_kit_id[0] : false</attribute>
+        </xpath>
+    </t>
+    
+    <!-- Tooltip personalizado para mostrar información del kit -->
+    <t t-name="almus_mrp_kit_grouping.KitTooltip">
+        <div class="almus-kit-tooltip">
+            <t t-if="record.data.almus_parent_kit_id">
+                <strong>Componente de:</strong> <t t-esc="record.data.almus_parent_kit_id[1]"/><br/>
+                <strong>Nivel:</strong> <t t-esc="record.data.almus_bom_level"/>
+            </t>
+            <t t-else="">
+                <strong>Kit Principal</strong>
+                <t t-if="hasChildren">
+                    <br/><em>Click para expandir/colapsar componentes</em>
+                </t>
+            </t>
+        </div>
+    </t>
+    
+</templates>

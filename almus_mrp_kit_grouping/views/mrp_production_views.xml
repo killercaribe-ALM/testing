@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de formulario de Orden de Fabricación -->
+    <record id="view_almus_mrp_production_form" model="ir.ui.view">
+        <field name="name">almus.mrp.production.form</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Agregar campo de agrupación en el header -->
+            <xpath expr="//sheet/group[1]" position="inside">
+                <group>
+                    <field name="almus_group_by_kit" 
+                           string="Agrupar ingredientes por kit"
+                           widget="boolean_toggle"/>
+                </group>
+            </xpath>
+            
+            <!-- Reemplazar la vista de materias primas cuando está activa la agrupación -->
+            <xpath expr="//notebook/page[@name='components']/field[@name='move_raw_ids']" position="attributes">
+                <attribute name="invisible">almus_group_by_kit</attribute>
+            </xpath>
+            
+            <!-- Agregar vista agrupada después de la vista normal -->
+            <xpath expr="//notebook/page[@name='components']/field[@name='move_raw_ids']" position="after">
+                <field name="almus_grouped_move_ids" 
+                       invisible="not almus_group_by_kit"
+                       context="{'tree_view_ref': 'almus_mrp_kit_grouping.view_almus_stock_move_tree'}">
+                    <tree string="Componentes Agrupados por Kit" 
+                          editable="bottom"
+                          decoration-info="almus_parent_kit_id == False"
+                          decoration-muted="state in ('done', 'cancel')">
+                        <field name="almus_parent_kit_id" column_invisible="1"/>
+                        <field name="almus_bom_level" column_invisible="1"/>
+                        <field name="almus_kit_sequence" column_invisible="1"/>
+                        <field name="almus_display_name" string="Producto" readonly="1"/>
+                        <field name="product_id" column_invisible="1"/>
+                        <field name="product_uom" readonly="state != 'draft'" 
+                               groups="uom.group_uom" optional="show"/>
+                        <field name="product_uom_qty" string="Demanda"/>
+                        <field name="quantity" readonly="1" optional="show"/>
+                        <field name="location_id" 
+                               domain="[('usage', '=', 'internal')]" 
+                               groups="stock.group_stock_multi_locations"
+                               optional="hide"/>
+                        <field name="location_dest_id" 
+                               domain="[('usage', 'in', ['internal', 'production'])]"
+                               readonly="1" 
+                               groups="stock.group_stock_multi_locations"
+                               column_invisible="1"/>
+                        <field name="state" column_invisible="1"/>
+                    </tree>
+                </field>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Vista tree personalizada para los movimientos agrupados -->
+    <record id="view_almus_stock_move_tree" model="ir.ui.view">
+        <field name="name">almus.stock.move.tree.grouped</field>
+        <field name="model">stock.move</field>
+        <field name="arch" type="xml">
+            <tree string="Componentes Agrupados" 
+                  editable="bottom"
+                  decoration-info="almus_parent_kit_id == False"
+                  decoration-muted="state in ('done', 'cancel')"
+                  js_class="almus_kit_tree">
+                <field name="almus_parent_kit_id" column_invisible="1"/>
+                <field name="almus_bom_level" column_invisible="1"/>
+                <field name="almus_display_name" string="Producto"/>
+                <field name="product_id" column_invisible="1"/>
+                <field name="product_uom_qty" string="A Consumir"/>
+                <field name="product_uom" groups="uom.group_uom"/>
+                <field name="quantity" string="Consumido" readonly="1"/>
+                <field name="location_id" groups="stock.group_stock_multi_locations" optional="hide"/>
+                <field name="state" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Vista de búsqueda mejorada -->
+    <record id="view_almus_mrp_production_search" model="ir.ui.view">
+        <field name="name">almus.mrp.production.search</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='late']" position="after">
+                <separator/>
+                <filter string="Con Agrupación por Kit" 
+                        name="with_kit_grouping" 
+                        domain="[('almus_group_by_kit', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
