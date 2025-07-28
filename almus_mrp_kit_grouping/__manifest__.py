@@ -17,7 +17,7 @@
     "author": "Almus Dev",
     "website": "https://www.almus.dev",
     "category": "Manufacturing",
-    "version": "18.0.1.0.0",
+    "version": "17.0.1.0.0",
     "depends": ["almus_base", "mrp", "stock"],
     "installable": True,
     "auto_install": False,

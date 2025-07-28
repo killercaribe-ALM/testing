@@ -31,11 +31,11 @@
                           decoration-info="almus_parent_kit_id == False"
                           decoration-muted="state in ('done', 'cancel')"
                           create="0">
-                        <field name="almus_parent_kit_id" column_invisible="1"/>
-                        <field name="almus_bom_level" column_invisible="1"/>
-                        <field name="almus_kit_sequence" column_invisible="1"/>
+                        <field name="almus_parent_kit_id" invisible="1"/>
+                        <field name="almus_bom_level" invisible="1"/>
+                        <field name="almus_kit_sequence" invisible="1"/>
                         <field name="almus_display_name" string="Producto" readonly="1" force_save="1"/>
-                        <field name="product_id" column_invisible="1"/>
+                        <field name="product_id" invisible="1"/>
                         <field name="product_uom" readonly="state != 'draft'" 
                                groups="uom.group_uom" optional="show"/>
                         <field name="product_uom_qty" string="Demanda"/>
@@ -48,8 +48,8 @@
                                domain="[('usage', 'in', ['internal', 'production'])]"
                                readonly="1" 
                                groups="stock.group_stock_multi_locations"
-                               column_invisible="1"/>
-                        <field name="state" column_invisible="1"/>
+                               invisible="1"/>
+                        <field name="state" invisible="1"/>
                     </tree>
                 </field>
             </xpath>
