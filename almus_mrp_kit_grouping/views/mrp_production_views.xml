@@ -17,22 +17,24 @@
             
             <!-- Reemplazar la vista de materias primas cuando está activa la agrupación -->
             <xpath expr="//notebook/page[@name='components']/field[@name='move_raw_ids']" position="attributes">
-                <attribute name="invisible">almus_group_by_kit</attribute>
+                <attribute name="invisible">almus_group_by_kit == True</attribute>
             </xpath>
             
             <!-- Agregar vista agrupada después de la vista normal -->
             <xpath expr="//notebook/page[@name='components']/field[@name='move_raw_ids']" position="after">
                 <field name="almus_grouped_move_ids" 
-                       invisible="not almus_group_by_kit"
-                       context="{'tree_view_ref': 'almus_mrp_kit_grouping.view_almus_stock_move_tree'}">
+                       invisible="almus_group_by_kit == False"
+                       context="{'tree_view_ref': 'almus_mrp_kit_grouping.view_almus_stock_move_tree'}"
+                       readonly="state != 'draft'>
                     <tree string="Componentes Agrupados por Kit" 
                           editable="bottom"
                           decoration-info="almus_parent_kit_id == False"
-                          decoration-muted="state in ('done', 'cancel')">
+                          decoration-muted="state in ('done', 'cancel')"
+                          create="0">
                         <field name="almus_parent_kit_id" column_invisible="1"/>
                         <field name="almus_bom_level" column_invisible="1"/>
                         <field name="almus_kit_sequence" column_invisible="1"/>
-                        <field name="almus_display_name" string="Producto" readonly="1"/>
+                        <field name="almus_display_name" string="Producto" readonly="1" force_save="1"/>
                         <field name="product_id" column_invisible="1"/>
                         <field name="product_uom" readonly="state != 'draft'" 
                                groups="uom.group_uom" optional="show"/>
@@ -63,7 +65,7 @@
                   editable="bottom"
                   decoration-info="almus_parent_kit_id == False"
                   decoration-muted="state in ('done', 'cancel')"
-                  js_class="almus_kit_tree">
+                  js_class="almus_kit_tree_widget">
                 <field name="almus_parent_kit_id" column_invisible="1"/>
                 <field name="almus_bom_level" column_invisible="1"/>
                 <field name="almus_display_name" string="Producto"/>

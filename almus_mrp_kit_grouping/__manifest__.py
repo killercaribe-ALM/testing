@@ -23,14 +23,7 @@
     "auto_install": False,
     "application": True,
     "data": [
-        "security/ir.model.access.csv",
         "views/mrp_production_views.xml",
         "views/res_config_settings_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "almus_mrp_kit_grouping/static/src/js/mrp_kit_grouping.js",
-            "almus_mrp_kit_grouping/static/src/xml/mrp_kit_grouping.xml",
-        ],
-    },
 }

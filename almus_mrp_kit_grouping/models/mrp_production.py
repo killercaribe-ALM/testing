@@ -16,7 +16,7 @@ class MrpProduction(models.Model):
     )
     
     # Movimientos agrupados por kit (computado)
-    almus_grouped_move_ids = fields.One2many(
+    almus_grouped_move_ids = fields.Many2many(
         'stock.move',
         compute='_compute_grouped_moves',
         string='Materiales Agrupados',
@@ -47,9 +47,11 @@ class MrpProduction(models.Model):
         if not moves:
             return moves
         
-        # Diccionario para agrupar por kit padre
+        # Crear diccionarios para búsqueda rápida
+        moves_by_product = {move.product_id.id: move for move in moves}
         kit_groups = defaultdict(list)
         root_moves = []
+        processed = set()
         
         # Clasificar movimientos
         for move in moves:
@@ -59,32 +61,41 @@ class MrpProduction(models.Model):
                 root_moves.append(move)
         
         # Construir lista ordenada
-        ordered_moves = self.env['stock.move']
+        ordered_move_ids = []
         
         def add_kit_and_components(kit_product_id, level=0):
             """Función recursiva para agregar kits y sus componentes"""
-            # Buscar si este kit está en los movimientos root
-            kit_move = next((m for m in root_moves if m.product_id.id == kit_product_id), None)
-            if kit_move:
-                ordered_moves |= kit_move
+            if kit_product_id in processed:
+                return
+                
+            # Buscar el movimiento del kit
+            if kit_product_id in moves_by_product:
+                kit_move = moves_by_product[kit_product_id]
+                if kit_move.id not in ordered_move_ids:
+                    ordered_move_ids.append(kit_move.id)
+                    processed.add(kit_product_id)
             
             # Agregar componentes del kit
             if kit_product_id in kit_groups:
-                components = sorted(kit_groups[kit_product_id], key=lambda m: m.almus_kit_sequence)
+                components = sorted(kit_groups[kit_product_id], 
+                                  key=lambda m: (m.almus_kit_sequence, m.id))
                 for component in components:
-                    ordered_moves |= component
+                    if component.id not in ordered_move_ids:
+                        ordered_move_ids.append(component.id)
                     # Si el componente es también un kit, procesar recursivamente
                     if component.product_id.id in kit_groups:
                         add_kit_and_components(component.product_id.id, level + 1)
         
         # Procesar movimientos root
-        for move in sorted(root_moves, key=lambda m: m.almus_kit_sequence):
-            ordered_moves |= move
+        for move in sorted(root_moves, key=lambda m: (m.almus_kit_sequence, m.id)):
+            if move.id not in ordered_move_ids:
+                ordered_move_ids.append(move.id)
             # Si es un kit, agregar sus componentes
             if move.product_id.id in kit_groups:
                 add_kit_and_components(move.product_id.id, 0)
         
-        return ordered_moves
+        # Retornar recordset ordenado
+        return moves.browse(ordered_move_ids)
     
     @api.model
     def create(self, vals):
@@ -104,34 +115,52 @@ class MrpProduction(models.Model):
         if not self.bom_id:
             return
         
-        # Mapear la estructura del BoM a los movimientos
-        def process_bom_line(bom_line, parent_product=None, level=0, sequence=10):
-            """Procesa recursivamente las líneas del BoM"""
-            # Buscar el movimiento correspondiente
-            move = self.move_raw_ids.filtered(
-                lambda m: m.product_id == bom_line.product_id and 
-                not m.almus_parent_kit_id  # Solo procesar movimientos sin asignar
-            )[:1]  # Tomar solo el primero si hay múltiples
+        try:
+            # Resetear información previa
+            self.move_raw_ids.write({
+                'almus_parent_kit_id': False,
+                'almus_bom_level': 0,
+                'almus_kit_sequence': 10,
+            })
             
-            if move:
-                move.write({
-                    'almus_parent_kit_id': parent_product.id if parent_product else False,
-                    'almus_bom_level': level,
-                    'almus_kit_sequence': sequence,
-                })
+            # Mapear la estructura del BoM a los movimientos
+            def process_bom_line(bom_line, parent_product=None, level=0, sequence=10):
+                """Procesa recursivamente las líneas del BoM"""
+                # Buscar el movimiento correspondiente
+                move = self.move_raw_ids.filtered(
+                    lambda m: m.product_id == bom_line.product_id and 
+                    not m.almus_parent_kit_id  # Solo procesar movimientos sin asignar
+                )[:1]  # Tomar solo el primero si hay múltiples
+                
+                if move:
+                    move.write({
+                        'almus_parent_kit_id': parent_product.id if parent_product else False,
+                        'almus_bom_level': level,
+                        'almus_kit_sequence': sequence,
+                    })
+                
+                # Si el producto tiene su propio BoM (es un kit), procesar sus líneas
+                child_bom = self.env['mrp.bom'].search([
+                    ('product_id', '=', bom_line.product_id.id),
+                    ('type', '=', 'normal'),
+                    ('active', '=', True)
+                ], limit=1)
+                
+                if child_bom:
+                    seq = 10
+                    for child_line in child_bom.bom_line_ids:
+                        process_bom_line(child_line, bom_line.product_id, level + 1, seq)
+                        seq += 10
             
-            # Si el producto tiene su propio BoM (es un kit), procesar sus líneas
-            if bom_line.child_line_ids:
-                seq = 10
-                for child_line in bom_line.child_line_ids:
-                    process_bom_line(child_line, bom_line.product_id, level + 1, seq)
-                    seq += 10
-        
-        # Procesar todas las líneas del BoM principal
-        sequence = 10
-        for line in self.bom_id.bom_line_ids:
-            process_bom_line(line, None, 0, sequence)
-            sequence += 10
+            # Procesar todas las líneas del BoM principal
+            sequence = 10
+            for line in self.bom_id.bom_line_ids:
+                process_bom_line(line, None, 0, sequence)
+                sequence += 10
+                
+        except Exception as e:
+            _logger.warning(f"Error asignando información de kit: {str(e)}")
+            # En caso de error, continuar sin la agrupación
     
     def action_confirm(self):
         """Override para asignar información de kit al confirmar"""
